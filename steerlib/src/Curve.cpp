@@ -65,7 +65,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 // Sort controlPoints vector in ascending order: min-first
 void Curve::sortControlPoints()
 {
-	std::sort( Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints );
+	std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
 	return;
 }
 
