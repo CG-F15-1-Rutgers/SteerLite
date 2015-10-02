@@ -143,19 +143,32 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	Point newPosition;
 	float normalTime, intervalTime;
 
-	//================DELETE THIS PART AND THEN START CODING===================
-	static bool flag = false;
-	if (!flag)
-	{
-		std::cerr << "ERROR>>>>Member function useHermiteCurve is not implemented!" << std::endl;
-		flag = true;
-	}
-	//=========================================================================
-
-
 	// Calculate time interval, and normal time required for later curve calculations
-
+	// Should findTimeInterval be used here? error with unsigned int and const unsigned int Params
+	intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
+	normalTime = time - controlPoints[nextPoint - 1].time;
+	
 	// Calculate position at t = time on Hermite curve
+	/*
+	Hermite curve insites from slides:
+	f1(t) = 2t^3 - 3t^2 +1
+	f2(t) = -2t^3 + 3t^2
+	f3(t) = t^3 - 2t^2 +t
+	f4(t) = t^3-t^2
+	
+	position = p0.pos * f1(t) + p1.pos f2(t) + p0.tan*f3(t) + p1.tan*f4(t)
+	*/
+	float f1, f2, f3, f4, t2, t3;
+	t2 = normalTime * normalTime;
+	t3 = normalTime * normalTime * normalTime;
+
+	f1 = (2 * t3) - (3 * t2) + 1;
+	f2 = (-2 * t3) + 3 * t2;
+	f3 = t3 - 2*t2 + normalTime;
+	f4 = t3 - t2;
+
+	newPosition = f1*controlPoints[nextPoint - 1].position + f2*controlPoints[nextPoint].position
+		+ f3*controlPoints[nextPoint - 1].tangent + f4*controlPoints[nextPoint].tangent;
 
 	// Return result
 	return newPosition;
