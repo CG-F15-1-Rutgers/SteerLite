@@ -77,7 +77,7 @@ void Curve::sortControlPoints()
 
 // Calculate the position on curve corresponding to the given time, outputPoint is the resulting position
 bool Curve::calculatePoint(Point& outputPoint, float time)
-{std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
+{
 	// Robustness: make sure there is at least two control point: start and end point
 	if (!checkRobust())
 		return false;
