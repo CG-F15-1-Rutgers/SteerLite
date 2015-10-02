@@ -55,9 +55,13 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	//=========================================================================
 
 	// Robustness: make sure there is at least two control point: start and end points
-
+	if (checkRobust() == false) {
+		return;
+	}
 	// Move on the curve from t=0 to t=finalPoint, using window as step size, and linearly interpolate the curve points
-	
+
+
+
 	return;
 #endif
 }
@@ -122,10 +126,10 @@ bool Curve::findTimeInterval(unsigned int& nextPoint, float time)
 {
 	for (int i = 1; i < controlPoints.size(); ++i)
 	{
-		CurvePoint point = controlPoint[i];
+		CurvePoint point = controlPoints[i];
 		if (time < point.time)
 		{
-			nextpoint = i;
+			nextPoint = i;
 			return true;
 		}
 	}
@@ -175,7 +179,7 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 	// Calculate time interval, and normal time required for later curve calculations
 
 	// Calculate position at t = time on Catmull-Rom curve
-	
+
 	// Return result
 	return newPosition;
 }
