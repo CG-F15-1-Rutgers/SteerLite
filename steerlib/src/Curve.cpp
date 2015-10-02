@@ -65,22 +65,14 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 // Sort controlPoints vector in ascending order: min-first
 void Curve::sortControlPoints()
 {
-	//================DELETE THIS PART AND THEN START CODING===================
-	static bool flag = false;
-	if (!flag)
-	{
-		std::cerr << "ERROR>>>>Member function sortControlPoints is not implemented!" << std::endl;
-		flag = true;
-	}
-	//=========================================================================
-
+	std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
 	return;
 }
 
 // Calculate the position on curve corresponding to the given time, outputPoint is the resulting position
 bool Curve::calculatePoint(Point& outputPoint, float time)
-{
-	// Robustness: make sure there is at least two control point: start and end points
+{std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
+	// Robustness: make sure there is at least two control point: start and end point
 	if (!checkRobust())
 		return false;
 
