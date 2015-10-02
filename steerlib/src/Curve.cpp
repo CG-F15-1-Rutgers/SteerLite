@@ -146,7 +146,7 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	// Calculate time interval, and normal time required for later curve calculations
 	// Should findTimeInterval be used here? error with unsigned int and const unsigned int Params
 	intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
-	normalTime = time - controlPoints[nextPoint - 1].time;
+	normalTime = (time - controlPoints[nextPoint - 1].time)/intervalTime;
 	
 	// Calculate position at t = time on Hermite curve
 	/*
