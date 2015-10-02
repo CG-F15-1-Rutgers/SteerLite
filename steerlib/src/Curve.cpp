@@ -62,6 +62,12 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 #endif
 }
 
+//feed into std::sort to compare ControlPoints
+bool compareControlPoints(CurvePoint a, CurvePoint b)
+{
+	return (a.time < b.time);
+}
+
 // Sort controlPoints vector in ascending order: min-first
 void Curve::sortControlPoints()
 {
