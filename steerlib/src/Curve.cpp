@@ -56,12 +56,12 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	end = controlPoints.back().time;
 	interval = end - begin;
 
-	int numberPoints = (int)( (int) interval / window);
+	int numberPoints = (int)(interval / window);
 
 	float time = begin + window;
 	Point prev = controlPoints.front().position;
 
-	for ( int i = 0; i < numberPoints; i++ ) {
+	for (int i = 0; i < numberPoints; i++) {
 		Point curr;
 
 		//if observing the last point, set time to end
@@ -69,26 +69,20 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 			curr = controlPoints.back().position;
 			time = end;
 		}
-
-		else if ( calculatePoint(curr, time) == false) {
+		else if (calculatePoint(curr, time) == false) {
 			std::cerr << "Error: Could not draw curve at point: " << i << " at time: " << time;
 			return;
 		}
 
-		Drawlib::drawLine(prev, curr, curveColor, curveThickness);
+		DrawLib::drawLine(prev, curr, curveColor, curveThickness);
 		prev = curr;
 		time = time + window;
 	}
 
-	// Robustness: make sure there is at least two control point: start and end points
-
-	// Move on the curve from t=0 to t=finalPoint, using window as step size, and linearly interpolate the curve points
-	
 	return;
 #endif
 }
 
-//feed into std::sort to compare ControlPoints
 bool compareControlPoints(CurvePoint a, CurvePoint b)
 {
 	return (a.time < b.time);
@@ -97,7 +91,15 @@ bool compareControlPoints(CurvePoint a, CurvePoint b)
 // Sort controlPoints vector in ascending order: min-first
 void Curve::sortControlPoints()
 {
+
 	std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
+
+	for (int i = 0; i < controlPoints.size() - 1; i++) {
+		if (controlPoints[i].time == controlPoints[i + 1].time) {
+			controlPoints.erase(controlPoints.begin() + i + 1);
+		}
+	}
+
 	return;
 }
 
@@ -168,6 +170,7 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 
 	// Calculate time interval, and normal time required for later curve calculations
 	// Should findTimeInterval be used here? error with unsigned int and const unsigned int Params
+
 	intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
 	normalTime = (time - controlPoints[nextPoint - 1].time) / intervalTime;
 
@@ -186,9 +189,9 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	t3 = normalTime * normalTime * normalTime;
 
 	f1 = (2 * t3) - (3 * t2) + 1;
-	f2 = (-2 * t3) + 3 * t2;
-	f3 = t3 - 2 * t2 + normalTime;
-	f4 = t3 - t2;
+	f2 = (-2 * t3) + (3 * t2);
+	f3 = (t3 - 2 * t2 + normalTime) * intervalTime;
+	f4 = (t3 - t2) * intervalTime;
 
 	newPosition = f1*controlPoints[nextPoint - 1].position + f2*controlPoints[nextPoint].position
 		+ f3*controlPoints[nextPoint - 1].tangent + f4*controlPoints[nextPoint].tangent;
