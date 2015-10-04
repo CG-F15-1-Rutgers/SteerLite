@@ -124,11 +124,10 @@ bool Curve::checkRobust()
 // Find the current time interval (i.e. index of the next control point to follow according to current time)
 bool Curve::findTimeInterval(unsigned int& nextPoint, float time)
 {
-	CurvePoint currPoint;
-	for (int i = 1; i < controlPoints.size(); i++)
+	for (int i = 1; i < controlPoints.size(); ++i)
 	{
-		currPoint = controlPoints[i];
-		if (time < currPoint.time)
+		CurvePoint point = controlPoints[i];
+		if (time < point.time)
 		{
 			//Found it. return the current index back
 			nextPoint = i;
