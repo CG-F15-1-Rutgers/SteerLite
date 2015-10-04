@@ -148,8 +148,8 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	// Calculate time interval, and normal time required for later curve calculations
 	// Should findTimeInterval be used here? error with unsigned int and const unsigned int Params
 	intervalTime = controlPoints[nextPoint].time - controlPoints[nextPoint - 1].time;
-	normalTime = (time - controlPoints[nextPoint - 1].time)/intervalTime;
-	
+	normalTime = (time - controlPoints[nextPoint - 1].time) / intervalTime;
+
 	// Calculate position at t = time on Hermite curve
 	/*
 	Hermite curve insites from slides:
@@ -157,7 +157,7 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	f2(t) = -2t^3 + 3t^2
 	f3(t) = t^3 - 2t^2 +t
 	f4(t) = t^3-t^2
-	
+
 	position = p0.pos * f1(t) + p1.pos f2(t) + p0.tan*f3(t) + p1.tan*f4(t)
 	*/
 	float f1, f2, f3, f4, t2, t3;
@@ -166,7 +166,7 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 
 	f1 = (2 * t3) - (3 * t2) + 1;
 	f2 = (-2 * t3) + 3 * t2;
-	f3 = t3 - 2*t2 + normalTime;
+	f3 = t3 - 2 * t2 + normalTime;
 	f4 = t3 - t2;
 
 	newPosition = f1*controlPoints[nextPoint - 1].position + f2*controlPoints[nextPoint].position
@@ -180,16 +180,6 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 {
 	Point newPosition;
-
-	//================DELETE THIS PART AND THEN START CODING===================
-	static bool flag = false;
-	if (!flag)
-	{
-		std::cerr << "ERROR>>>>Member function useCatmullCurve is not implemented!" << std::endl;
-		flag = true;
-	}
-	//=========================================================================
-
 
 	// Calculate time interval, and normal time required for later curve calculations
 	float normalTime, intervalTime;
@@ -214,7 +204,7 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 	f2 = (-2 * t3) + 3 * t2;
 	f3 = t3 - 2 * t2 + normalTime;
 	f4 = t3 - t2;
-	
+
 	/*
 	Catmull-Rom curves are a subset of cardinal splines, which are a subset of hermite splines
 	Cardinal-Roms use
@@ -224,12 +214,12 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 	first order tangent intuition from slides:
 	si = yi+1 -yi
 	sn-1 = yn-1 -yn-2
-	
+
 	This one I think??
 	Second Order accurate tangents intuition from slides:
 	s0 = 2*(y1 - y0) - (y2-y0)/2
 	si = (yi+1 - yi-1)/(2)
-	
+
 	else:
 	Ti = 0.5 * (Pi+1 - Pi-1)
 	*/
@@ -240,22 +230,22 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 		//For the first 3 points
 		s0 = 2 * (controlPoints[nextPoint].position - controlPoints[nextPoint - 1].position)
 			- (controlPoints[nextPoint + 1].position - controlPoints[nextPoint - 1].position) / 2;
-		s1 = (controlPoints[nextPoint+1].position - controlPoints[nextPoint - 1].position) / 2;
+		s1 = (controlPoints[nextPoint + 1].position - controlPoints[nextPoint - 1].position) / 2;
 	}
 	else if (nextPoint == getControPoints().size() - 1)
 	{
 		//A reverse case of the above edge case to account for the last 3 points
 		s0 = (controlPoints[nextPoint].position - controlPoints[nextPoint - 2].position) / 2;
 		s1 = (controlPoints[nextPoint].position - controlPoints[nextPoint - 2].position) / 2
-			- 2*(controlPoints[nextPoint-1].position - controlPoints[nextPoint].position);
+			- 2 * (controlPoints[nextPoint - 1].position - controlPoints[nextPoint].position);
 	}
 	else
 	{
 		//Any other non edge case set of points
 		s0 = (controlPoints[nextPoint].position - controlPoints[nextPoint - 2].position) / 2;
-		s1 = (controlPoints[nextPoint+1].position - controlPoints[nextPoint - 1].position) / 2;
+		s1 = (controlPoints[nextPoint + 1].position - controlPoints[nextPoint - 1].position) / 2;
 	}
-	
+
 	newPosition = f1*controlPoints[nextPoint - 1].position + f2*controlPoints[nextPoint].position
 		+ f3*s0 + f4*s1;
 	// Return result
