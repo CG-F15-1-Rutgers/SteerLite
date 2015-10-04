@@ -94,6 +94,7 @@ void Curve::sortControlPoints()
 
 	std::sort(Curve::controlPoints.begin(), Curve::controlPoints.end(), compareControlPoints);
 
+	//accounts for multiple points at any time t
 	for (int i = 0; i < controlPoints.size() - 1; i++) {
 		if (controlPoints[i].time == controlPoints[i + 1].time) {
 			controlPoints.erase(controlPoints.begin() + i + 1);
