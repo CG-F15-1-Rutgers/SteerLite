@@ -1,0 +1,19 @@
+Assignment 1 – Steerlite Curves
+
+Brian Ho (bkh39)
+Tolby Lew (tfl19)
+Firas Sattar (fs263)
+
+github.com/CG-F15-1-Rutgers/SteerLite
+
+Curve 1 Hermite: https://youtu.be/gVP-xf_p8zg
+Curve 2 Hermite: https://www.youtube.com/watch?v=TQoXaewAUxA
+Curve 3 hermite: https://www.youtube.com/watch?v=uzDjbBFZt_8
+Curve 4 Hermite: https://www.youtube.com/watch?v=CPgCsgJQgQ0
+Custom hermite: https://www.youtube.com/watch?v=8M9VF_ZVPVA
+
+Curve 1 catmull: https://www.youtube.com/watch?v=_iee71ZvY4c
+Curve 2 catmull: https://www.youtube.com/watch?v=5h6vl-RAgTQ
+Curve 3 catmull: https://www.youtube.com/watch?v=Gi6JsXgrkYw
+Curve 4 catmull: https://www.youtube.com/watch?v=NqikHdgILQE
+Custom catmull: https://www.youtube.com/watch?v=mJppdbNhpME
