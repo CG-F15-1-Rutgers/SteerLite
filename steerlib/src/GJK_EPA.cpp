@@ -10,6 +10,7 @@
 
 SteerLib::GJK_EPA::GJK_EPA()
 {
+	
 }
 
 //Look at the GJK_EPA.h header file for documentation and instructions
