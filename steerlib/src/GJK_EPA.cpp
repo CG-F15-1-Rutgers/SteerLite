@@ -36,7 +36,6 @@ Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
 	return retVect;
 }
 
-//given a shape and a direction vector, calculate farthest point on shape in given direction
 Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector direction)
 {
 	//iterator to keep track of current farthest point
@@ -59,7 +58,6 @@ Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector
 	return returnVector;
 }
 
-
 Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
 {
 	Util::Vector pointA = farthestPoint(_shapeA, direction);
@@ -80,44 +78,50 @@ Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 	//calculates new direction in way that most likely encloses origin if collision exists
 	Util::Vector Origin(0, 0, 0);
 	Util::Vector AB = nextLast - last;
-	Util::Vector AO = Origin - nextLast;
+	Util::Vector AO = Origin - last;
 
-	Util::Vector retDir = AO*(AB*AB) - AB*(AB*AO);
+	Util::Vector retDir = cross(cross(AB,AO), AB);
 	return retDir;
 }
 
-// (AC x AB) x AB
+
+// (AC x AB) x AB = AB(AB.dot(AC)) - AC(AB.dot(AB))
 Util::Vector tripCross(Util::Vector AC, Util::Vector AB) {
 	
 	return cross(cross(AC,AB),AB);
 }
 
+
+
 bool checkSimplex(std::vector<Util::Vector>& simplex)
 {  // get the last point added to the simplex
 	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
 	Util::Vector A(reverse->x, reverse->y, reverse->z);
+	// compute AO 
 	Util::Vector AO = Util::Vector(0, 0, 0) - A;
 	if (simplex.size() == 3) {
 
-		//A triangle case
+		// then its the triangle case
+		// get b and c
 		reverse++;
 		Util::Vector B(reverse->x, reverse->y, reverse->z);
 		reverse++;
 		Util::Vector C(reverse->x, reverse->y, reverse->z);
-		// edges
+		// compute the edges
 		Util::Vector AB = B - A;
 		Util::Vector AC = C - A;
-		// compute the norms
+		// compute the normals
 		Util::Vector ABperp = tripCross(AC, AB);
 		Util::Vector ACperp = tripCross(AB, AC);
-		// is the origin in R4 region
+
+		// is the origin in R4
 		if (dot(ABperp,AO) > 0) {
 			// remove point c
 			simplex.erase(simplex.begin());
 			return false;
 		}
 		else {
-			// is the origin in R3 region
+			// is the origin in R3
 			if (dot(ACperp,AO) > 0) {
 				// remove point b
 				simplex.erase(simplex.begin() + 1);
@@ -129,7 +133,7 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 			}
 		}
 	}
-	return false;
+	return true;
 }
 
 //Look at the GJK_EPA.h header file for documentation and instructions
@@ -174,17 +178,5 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 			}
 		}
 
-	}
-
-
-
-
-	if (is_colliding) {
-		//Still searching for collision
-		return (simplex, true);
-	}
-	else {
-		//there is no collision
-		return (NULL, false);
 	}
 }
