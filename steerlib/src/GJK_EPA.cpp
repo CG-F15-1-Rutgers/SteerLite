@@ -113,6 +113,9 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 		// compute the normals
 		Util::Vector ABperp = tripCross(AC, AB);
 		Util::Vector ACperp = tripCross(AB, AC);
+		
+		//Util::Vector ABperp = tripCross(AB, AC); // (AB X AC) X AC
+		//Util::Vector ACperp = tripCross(AC, AB); // (AC X AB) X AC
 
 		// is the origin in R4
 		if (dot(ABperp,AO) > 0) {
