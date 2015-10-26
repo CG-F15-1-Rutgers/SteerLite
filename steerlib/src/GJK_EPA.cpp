@@ -27,6 +27,28 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
     return col; // There is no collision
 }
 
+Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
+	Util::Vector retVect(0, 0, 0);
+
+	//add the x/y/z vals of every point in the shape
+	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); ++iter)
+	{
+		retVect.x = retVect.x + iter->x;
+		retVect.y = retVect.y + iter->y;
+		retVect.z = retVect.z + iter->z;
+	}
+
+	//divide by number of points to get average
+	if (_shape.size() > 0)
+	{
+		retVect.x = retVect.x / _shape.size();
+		retVect.y = retVect.y / _shape.size();
+		retVect.z = retVect.z / _shape.size();
+	}
+
+	return retVect;
+}
+
 bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
 {
 	//Simplex to be build using points found via Minkowski differences
@@ -72,27 +94,7 @@ bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vecto
 		return (NULL, false);
 	}
 }
-Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
-	Util::Vector retVect(0, 0, 0);
 
-	//add the x/y/z vals of every point in the shape
-	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); ++iter)
-	{
-		retVect.x = retVect.x + iter->x;
-		retVect.y = retVect.y + iter->y;
-		retVect.z = retVect.z + iter->z;
-	}
-
-	//divide by number of points to get average
-	if (_shape.size() > 0)
-	{
-		retVect.x = retVect.x / _shape.size();
-		retVect.y = retVect.y / _shape.size();
-		retVect.z = retVect.z / _shape.size();
-	}
-
-	return retVect;
-}
 Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
 {
 	Util::Vector pointA = farthestPoint(_shapeA, direction);
