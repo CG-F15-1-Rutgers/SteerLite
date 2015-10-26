@@ -86,50 +86,50 @@ Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 	return retDir;
 }
 
-bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
-{
-	//Simplex to be build using points found via Minkowski differences
-	std::vector<Util::Vector> simplex;
+// (AC x AB) x AB
+Util::Vector tripCross(Util::Vector AC, Util::Vector AB) {
+	
+	return cross(cross(AC,AB),AB);
+}
 
-	//flag to be set true if the simplex contains origin (0,0)
-	bool is_colliding = false;
+bool checkSimplex(std::vector<Util::Vector>& simplex)
+{  // get the last point added to the simplex
+	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
+	Util::Vector A(reverse->x, reverse->y, reverse->z);
+	Util::Vector AO = Util::Vector(0, 0, 0) - A;
+	if (simplex.size() == 3) {
 
-	//calculates for collision
-	//gets centers of Minkowski difference viadifference of center of both shapes.
-	Util::Vector direction = calculateCenter(_shapeA) - calculateCenter(_shapeB);
-	if (direction == (0, 0, 0)) {
-		return true;
+		//A triangle case
+		reverse++;
+		Util::Vector B(reverse->x, reverse->y, reverse->z);
+		reverse++;
+		Util::Vector C(reverse->x, reverse->y, reverse->z);
+		// edges
+		Util::Vector AB = B - A;
+		Util::Vector AC = C - A;
+		// compute the norms
+		Util::Vector ABperp = tripCross(AC, AB);
+		Util::Vector ACperp = tripCross(AB, AC);
+		// is the origin in R4 region
+		if (dot(ABperp,AO) > 0) {
+			// remove point c
+			simplex.erase(simplex.begin());
+			return false;
+		}
+		else {
+			// is the origin in R3 region
+			if (dot(ACperp,AO) > 0) {
+				// remove point b
+				simplex.erase(simplex.begin() + 1);
+				return false;
+			}
+			else {
+				// otherwise we know its in R5 so we can return true
+				return true;
+			}
+		}
 	}
-
-	//first 2 points on the simplex
-	simplex.push_back(support(_shapeA, _shapeB, direction));
-	direction = direction*-1;
-	simplex.push_back(support(_shapeA, _shapeB, direction));
-
-	//build the simplex
-	while (true) {
-		//get new direction
-		direction = calculateDirection(simplex);
-
-		//add new minkowski difference vertex
-		simplex.push_back(support(_shapeA, _shapeB, direction));
-
-		//check simplex contains origin
-
-
-	}
-
-
-
-
-	if (is_colliding) {
-		//Still searching for collision
-		return (simplex, true);
-	}
-	else {
-		//there is no collision
-		return (NULL, false);
-	}
+	return false;
 }
 
 //Look at the GJK_EPA.h header file for documentation and instructions
@@ -154,7 +154,7 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 	simplex.push_back(support(_shapeA, _shapeB, direction));
 
 	//build the simplex
-	for (int i = 0; i < 10; i++) {
+	while(true) {
 		//get new direction
 		direction = calculateDirection(simplex);
 
@@ -162,7 +162,17 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 		simplex.push_back(support(_shapeA, _shapeB, direction));
 
 		//check simplex contains origin
-
+		if (simplex[2] * direction <= 0) {
+			//simplex past origin
+			return false;
+		}
+		else {
+			if (checkSimplex(simplex))
+			{
+				
+				return true;
+			}
+		}
 
 	}
 
