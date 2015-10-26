@@ -49,6 +49,37 @@ Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
 	return retVect;
 }
 
+Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector direction)
+{
+	//iterator to keep track of current farthest point
+	std::vector<Util::Vector>::const_iterator currentFarthest = _shape.begin();
+
+	float currentDot = 0;
+	float highestDot = -999999999;
+
+	//loop through all points in shape, find one with greatest dot product with the desired direction. will be farthest point
+	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); ++iter)
+	{
+		currentDot = (iter->x * direction.x) + (iter->y * direction.y) + (iter->z * direction.z);
+		if (currentDot > highestDot)
+		{
+			highestDot = currentDot;
+			currentFarthest = iter;
+		}
+	}
+	Util::Vector returnVector(currentFarthest->x, currentFarthest->y, currentFarthest->z);
+	return returnVector;
+}
+
+Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
+{
+	Util::Vector pointA = farthestPoint(_shapeA, direction);
+	Util::Vector pointB = farthestPoint(_shapeB, (direction*-1));
+
+	return (pointA - pointB);
+
+}
+
 bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
 {
 	//Simplex to be build using points found via Minkowski differences
@@ -93,37 +124,6 @@ bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vecto
 		//there is no collision
 		return (NULL, false);
 	}
-}
-
-Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
-{
-	Util::Vector pointA = farthestPoint(_shapeA, direction);
-	Util::Vector pointB = farthestPoint(_shapeB, (direction*-1));
-
-	return (pointA - pointB);
-
-}
-
-Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector direction)
-{
-	//iterator to keep track of current farthest point
-	std::vector<Util::Vector>::const_iterator currentFarthest = _shape.begin();
-
-	float currentDot = 0;
-	float highestDot = -999999999;
-
-	//loop through all points in shape, find one with greatest dot product with the desired direction. will be farthest point
-	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); ++iter)
-	{
-		currentDot = (iter->x * direction.x) + (iter->y * direction.y) + (iter->z * direction.z);
-		if (currentDot > highestDot)
-		{
-			highestDot = currentDot;
-			currentFarthest = iter;
-		}
-	}
-	Util::Vector returnVector(currentFarthest->x, currentFarthest->y, currentFarthest->z);
-	return returnVector;
 }
 
 Util::Vector calDir(const std::vector<Util::Vector>& simplex)
