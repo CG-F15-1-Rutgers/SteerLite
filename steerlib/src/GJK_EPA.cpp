@@ -41,9 +41,27 @@ bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vecto
 	if (direction == (0, 0, 0)) {
 		return true;
 	}
+	
+	//first 2 points on the simplex
 	simplex.push_back(support(_shapeA,_shapeB,direction));
 	direction = direction*-1;
 	simplex.push_back(support(_shapeA, _shapeB, direction));
+
+	//build the simplex
+	while (true) {
+		//get new direction
+		direction = calDir(simplex);
+
+		//add new minkowski difference vertex
+		simplex.push_back(support(_shapeA, _shapeB, direction));
+
+		//check simplex contains origin
+
+
+	}
+
+
+
 
 	if (is_colliding) {
 		//Still searching for collision
@@ -102,4 +120,21 @@ Util::Vector getVector(const std::vector<Util::Vector>& _shape, Util::Vector dir
 
 	Util::Vector returnVect(ret_vect->x, ret_vect->y, ret_vect->z);
 	return returnVect;
+}
+
+Util::Vector calDir(const std::vector<Util::Vector>& simplex)
+{
+	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
+	Util::Vector last(reverse->x,reverse->y,reverse->z);
+	reverse = reverse + 1;
+	Util::Vector nextLast(reverse->x, reverse->y, reverse->z);
+
+
+	//calculates new direction in way that most likely encloses origin if collision exists
+	Util::Vector Origin(0, 0, 0);
+	Util::Vector AB = nextLast - last;
+	Util::Vector AO = Origin - nextLast;
+
+	Util::Vector retDir = AO*(AB*AB) - AB*(AB*AO);
+	return retDir;
 }
