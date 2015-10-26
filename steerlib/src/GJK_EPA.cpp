@@ -36,6 +36,7 @@ Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
 	return retVect;
 }
 
+//given a shape and a direction vector, calculate farthest point on shape in given direction
 Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector direction)
 {
 	//iterator to keep track of current farthest point
@@ -57,6 +58,7 @@ Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector
 	Util::Vector returnVector(currentFarthest->x, currentFarthest->y, currentFarthest->z);
 	return returnVector;
 }
+
 
 Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
 {
