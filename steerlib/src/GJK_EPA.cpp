@@ -80,6 +80,23 @@ Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector
 
 }
 
+Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
+{
+	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
+	Util::Vector last(reverse->x,reverse->y,reverse->z);
+	reverse = reverse + 1;
+	Util::Vector nextLast(reverse->x, reverse->y, reverse->z);
+
+
+	//calculates new direction in way that most likely encloses origin if collision exists
+	Util::Vector Origin(0, 0, 0);
+	Util::Vector AB = nextLast - last;
+	Util::Vector AO = Origin - nextLast;
+
+	Util::Vector retDir = AO*(AB*AB) - AB*(AB*AO);
+	return retDir;
+}
+
 bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
 {
 	//Simplex to be build using points found via Minkowski differences
@@ -124,21 +141,4 @@ bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vecto
 		//there is no collision
 		return (NULL, false);
 	}
-}
-
-Util::Vector calDir(const std::vector<Util::Vector>& simplex)
-{
-	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
-	Util::Vector last(reverse->x,reverse->y,reverse->z);
-	reverse = reverse + 1;
-	Util::Vector nextLast(reverse->x, reverse->y, reverse->z);
-
-
-	//calculates new direction in way that most likely encloses origin if collision exists
-	Util::Vector Origin(0, 0, 0);
-	Util::Vector AB = nextLast - last;
-	Util::Vector AO = Origin - nextLast;
-
-	Util::Vector retDir = AO*(AB*AB) - AB*(AB*AO);
-	return retDir;
 }
