@@ -59,6 +59,7 @@ Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector
 
 Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
 {
+	//Calculates a Minkowski difference
 	Util::Vector pointA = farthestPoint(_shapeA, direction);
 	Util::Vector pointB = farthestPoint(_shapeB, (direction*-1));
 
@@ -68,6 +69,7 @@ Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector
 
 Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 {
+	//Uses last 2 points in the simplex to calculate a new direction
 	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
 	Util::Vector last(reverse->x, reverse->y, reverse->z);
 	reverse = reverse + 1;
@@ -85,10 +87,13 @@ Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 
 
 // (AC x AB) x AB = AB(AB.dot(AC)) - AC(AB.dot(AB))
+/*
+Code taken out because of infinite looping error
 Util::Vector tripCross(Util::Vector AC, Util::Vector AB) {
 
 	return cross(cross(AC, AB), AB);
 }
+*/
 
 bool onEdge(Util::Vector A, Util::Vector B) {
 	Util::Vector Origin(0, 0, 0);
@@ -96,7 +101,7 @@ bool onEdge(Util::Vector A, Util::Vector B) {
 	bool ex = false, ey = false, ez = false;
 	Util::Vector AB = B - A;
 	Util::Vector AO = Origin - A;
-
+	
 	if (AB.x == 0 || AO.x == 0) {
 		if (!(AB.x == 0 && AO.x == 0)) {
 			return false;
@@ -195,19 +200,22 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 	Util::Vector AB = B - A;
 	Util::Vector AC = C - A;
 	// compute the normals
-	Util::Vector ABperp = AC*(AB*AB) - AB*(AB*AC);//tripCross(AC, AB);
-	Util::Vector ACperp = AB*(AC*AC) - AC*(AC*AB);//tripCross(AB, AC);
-
+	Util::Vector ABperp = AC*(dot(AB,AB)) - AB*(dot(AB,AC));//tripCross(AC, AB);
+	Util::Vector ACperp = AB*(dot(AC,AC)) - AC*(dot(AC,AB));//tripCross(AB, AC);
+	
+	//checks simplex edges for the origin of remaining 2 edges
 	if (onEdge(A, B) || onEdge(A, C)) {
 		return true;
 	}
+
+	//following checks area around simplex
 	// is the origin in R4
-	if (ABperp * AO/*dot(ABperp, AO)*/ <= 0) {
+	if (dot(ABperp, AO) <= 0) {
 		// remove point c
 		simplex.erase(simplex.begin());
 		return false;
 	}
-	else if (ACperp * AO/*dot(ACperp, AO)*/ <= 0) {
+	else if (dot(ACperp, AO) <= 0) {
 		// is the origin in R3
 		// remove point b
 		simplex.erase(simplex.begin() + 1);
@@ -216,7 +224,6 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 	else {
 		// otherwise we know its in R5 so we can return true
 		return true;
-	
 	}
 	
 }
@@ -243,9 +250,11 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 		//get new direction
 		direction = calculateDirection(simplex);
 
+		//check if direction is origin
 		if (direction == Util::Vector(0, 0, 0)) {
 			Util::Vector pt1 = simplex[0];
 			Util::Vector pt2 = simplex[1];
+			//origin on edge
 			if (onEdge(pt1, pt2)) {
 				return true;
 			}
@@ -263,9 +272,9 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 			return false;
 		}
 		else {
+			//Check the simplex area
 			if (checkSimplex(simplex))
 			{
-				
 				return true;
 			}
 		}
