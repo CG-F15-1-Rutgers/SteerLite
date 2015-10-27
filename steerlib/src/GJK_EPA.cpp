@@ -40,12 +40,11 @@ Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector
 {
 	//iterator to keep track of current farthest point
 	std::vector<Util::Vector>::const_iterator currentFarthest = _shape.begin();
-
 	float currentDot = 0;
 	float highestDot = -999999999;
 
 	//loop through all points in shape, find one with greatest dot product with the desired direction. will be farthest point
-	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); ++iter)
+	for (std::vector<Util::Vector>::const_iterator iter = _shape.begin(); iter != _shape.end(); iter++)
 	{
 		currentDot = (iter->x * direction.x) + (iter->y * direction.y) + (iter->z * direction.z);
 		if (currentDot > highestDot)
@@ -77,81 +76,160 @@ Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 
 	//calculates new direction in way that most likely encloses origin if collision exists
 	Util::Vector Origin(0, 0, 0);
-	Util::Vector AB = nextLast - last;
+	Util::Vector AB = last - nextLast;// nextLast - last;
 	Util::Vector AO = Origin - last;
 
-	Util::Vector retDir = cross(cross(AB,AO), AB);
+	Util::Vector retDir = AO*(AB*AB) - AB*(AB*AO);//cross(cross(AB, AO), AB);
 	return retDir;
 }
 
 
 // (AC x AB) x AB = AB(AB.dot(AC)) - AC(AB.dot(AB))
 Util::Vector tripCross(Util::Vector AC, Util::Vector AB) {
-	
-	return cross(cross(AC,AB),AB);
+
+	return cross(cross(AC, AB), AB);
 }
 
+bool onEdge(Util::Vector A, Util::Vector B) {
+	Util::Vector Origin(0, 0, 0);
+	float rx = 0, ry = 0, rz = 0;
+	bool ex = false, ey = false, ez = false;
+	Util::Vector AB = B - A;
+	Util::Vector AO = Origin - A;
 
-
-bool checkSimplex(std::vector<Util::Vector>& simplex)
-{  // get the last point added to the simplex
-	std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
-	Util::Vector A(reverse->x, reverse->y, reverse->z);
-	// compute AO 
-	Util::Vector AO = Util::Vector(0, 0, 0) - A;
-	if (simplex.size() == 3) {
-
-		// then its the triangle case
-		// get b and c
-		reverse++;
-		Util::Vector B(reverse->x, reverse->y, reverse->z);
-		reverse++;
-		Util::Vector C(reverse->x, reverse->y, reverse->z);
-		// compute the edges
-		Util::Vector AB = B - A;
-		Util::Vector AC = C - A;
-		// compute the normals
-		Util::Vector ABperp = tripCross(AC, AB);
-		Util::Vector ACperp = tripCross(AB, AC);
-		
-		//Util::Vector ABperp = tripCross(AB, AC); // (AB X AC) X AC
-		//Util::Vector ACperp = tripCross(AC, AB); // (AC X AB) X AC
-
-		// is the origin in R4
-		if (dot(ABperp,AO) > 0) {
-			// remove point c
-			simplex.erase(simplex.begin());
+	if (AB.x == 0 || AO.x == 0) {
+		if (!(AB.x == 0 && AO.x == 0)) {
 			return false;
 		}
-		else {
-			// is the origin in R3
-			if (dot(ACperp,AO) > 0) {
-				// remove point b
-				simplex.erase(simplex.begin() + 1);
-				return false;
-			}
-			else {
-				// otherwise we know its in R5 so we can return true
+		ex = true;
+	}
+	else {
+		rx = AO.x / AB.x;
+	}
+
+	if (AB.y == 0 || AO.y == 0) {
+		if (!(AB.y == 0 && AO.y == 0)) {
+			return false;
+		}
+		ey = true;
+	}
+	else {
+		ry = AO.y / AB.y;
+	}
+
+	if (AB.z == 0 || AO.z == 0) {
+		if (!(AB.z== 0 && AO.z== 0)) {
+			return false;
+		}
+		ez = true;
+	}
+	else {
+		rz = AO.z / AB.z;
+	}
+
+	std::vector<float> r;
+	if (!ex) r.push_back(rx);
+	if (!ey) r.push_back(ry);
+	if (!ez) r.push_back(rz);
+
+	if (r.size() == 3) {
+		if (r[0] == r[1] && r[1] == r[2]) {
+			if (r[0] >= 0 && r[0] <= 1) {
 				return true;
 			}
 		}
+		else {
+			return false;
+		}
 	}
-	return true;
+	else if (r.size() == 2) {
+		if (r[0] == r[1]) {
+			if (r[0] >= 0 && r[0] <= 1) {
+				return true;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	else if (r.size() == 1) {
+		if (r[0] >= 0 && r[0] <= 1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else{
+		return true;
+	}
 }
+/*
+bool onEdge(Util::Vector A, Util::Vector B) {
+	return false;
+}
+*/
+bool checkSimplex(std::vector<Util::Vector>& simplex)
+{  // get the last point added to the simplex
+   /*
+   std::vector<Util::Vector>::const_reverse_iterator reverse = simplex.rbegin();
+   Util::Vector A(reverse->x, reverse->y, reverse->z);
+   // compute AO
+   Util::Vector AO = Util::Vector(0, 0, 0) - A;
+   // then its the triangle case
+   // get b and c
+   reverse++;
+   Util::Vector B(reverse->x, reverse->y, reverse->z);
+   reverse++;
+   Util::Vector C(reverse->x, reverse->y, reverse->z);
+   */
 
+
+	Util::Vector A = simplex[2];
+	Util::Vector B = simplex[1];
+	Util::Vector C = simplex[0];
+
+	Util::Vector AO = Util::Vector(0, 0, 0) - A;
+
+	// compute the edges
+	Util::Vector AB = B - A;
+	Util::Vector AC = C - A;
+	// compute the normals
+	Util::Vector ABperp = AC*(AB*AB) - AB*(AB*AC);//tripCross(AC, AB);
+	Util::Vector ACperp = AB*(AC*AC) - AC*(AC*AB);//tripCross(AB, AC);
+
+	if (onEdge(A, B) || onEdge(A, C)) {
+		return true;
+	}
+	// is the origin in R4
+	if (ABperp * AO/*dot(ABperp, AO)*/ <= 0) {
+		// remove point c
+		simplex.erase(simplex.begin());
+		return false;
+	}
+	else if (ACperp * AO/*dot(ACperp, AO)*/ <= 0) {
+		// is the origin in R3
+		// remove point b
+		simplex.erase(simplex.begin() + 1);
+		return false;
+	}
+	else {
+		// otherwise we know its in R5 so we can return true
+		return true;
+	
+	}
+	
+}
 //Look at the GJK_EPA.h header file for documentation and instructions
 bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector& return_penetration_vector, const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
 {
 	//Simplex to be build using points found via Minkowski differences
 	std::vector<Util::Vector> simplex;
 
-	//flag to be set true if the simplex contains origin (0,0)
-	bool is_colliding = false;
-
 	//calculates for collision
 	//gets centers of Minkowski difference viadifference of center of both shapes.
 	Util::Vector direction = calculateCenter(_shapeA) - calculateCenter(_shapeB);
-	if (direction == (0, 0, 0)) {
+	if (direction == Util::Vector(0, 0, 0)) {
 		return true;
 	}
 
@@ -164,6 +242,17 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 	while(true) {
 		//get new direction
 		direction = calculateDirection(simplex);
+
+		if (direction == Util::Vector(0, 0, 0)) {
+			Util::Vector pt1 = simplex[0];
+			Util::Vector pt2 = simplex[1];
+			if (onEdge(pt1, pt2)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
 
 		//add new minkowski difference vertex
 		simplex.push_back(support(_shapeA, _shapeB, direction));
@@ -180,6 +269,7 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 				return true;
 			}
 		}
-
+		
 	}
+	return false;
 }
