@@ -69,6 +69,7 @@ Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector
 
 }
 
+//calculates new direction to grow the simplex, tries to enclose origin
 Util::Vector calculateDirection(const std::vector<Util::Vector>& simplex)
 {
 	//Uses last 2 points in the simplex to calculate a new direction
@@ -97,85 +98,69 @@ Util::Vector tripCross(Util::Vector AC, Util::Vector AB) {
 }
 */
 
+
+
 bool onEdge(Util::Vector A, Util::Vector B) {
-	Util::Vector Origin(0, 0, 0);
 	float rx = 0, ry = 0, rz = 0;
 	bool ex = false, ey = false, ez = false;
+	Util::Vector Origin(0, 0, 0);
 	Util::Vector AB = B - A;
 	Util::Vector AO = Origin - A;
-	
+	int rsize;
+
 	if (AB.x == 0 || AO.x == 0) {
-		if (!(AB.x == 0 && AO.x == 0)) {
+		if (!(AB.x == 0 && AO.x == 0))
 			return false;
-		}
 		ex = true;
 	}
-	else {
+	else
 		rx = AO.x / AB.x;
-	}
 
 	if (AB.y == 0 || AO.y == 0) {
-		if (!(AB.y == 0 && AO.y == 0)) {
+		if (!(AB.y == 0 && AO.y == 0))
 			return false;
-		}
 		ey = true;
 	}
-	else {
+	else
 		ry = AO.y / AB.y;
-	}
 
 	if (AB.z == 0 || AO.z == 0) {
-		if (!(AB.z== 0 && AO.z== 0)) {
+		if (!(AB.z == 0 && AO.z == 0))
 			return false;
-		}
 		ez = true;
 	}
-	else {
+	else
 		rz = AO.z / AB.z;
-	}
 
 	std::vector<float> r;
 	if (!ex) r.push_back(rx);
 	if (!ey) r.push_back(ry);
 	if (!ez) r.push_back(rz);
 
-	if (r.size() == 3) {
-		if (r[0] == r[1] && r[1] == r[2]) {
-			if (r[0] >= 0 && r[0] <= 1) {
-				return true;
-			}
-		}
-		else {
+	rsize = r.size();
+	if (rsize == 1)
+		return(r[0] >= 0 && r[0] <= 1);
+	else if (rsize == 2) {
+		if (r[0] == r[1])
+			return(r[0] >= 0 && r[0] <= 1);
+		else
 			return false;
-		}
 	}
-	else if (r.size() == 2) {
-		if (r[0] == r[1]) {
-			if (r[0] >= 0 && r[0] <= 1) {
-				return true;
-			}
-		}
-		else {
+	else if (rsize == 3) {
+		if (r[0] == r[1] && r[1] == r[2])
+			return(r[0] >= 0 && r[0] <= 1);
+		else
 			return false;
-		}
 	}
-	else if (r.size() == 1) {
-		if (r[0] >= 0 && r[0] <= 1) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	else{
+	else
 		return true;
-	}
 }
 /*
 bool onEdge(Util::Vector A, Util::Vector B) {
 	return false;
 }
 */
+
 bool checkSimplex(std::vector<Util::Vector>& simplex)
 {  // get the last point added to the simplex
    /*
@@ -230,7 +215,6 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 	
 }
 
-
 typedef struct Edge {
 	float dist;
 	Util::Vector perp;
@@ -238,60 +222,65 @@ typedef struct Edge {
 
 };
 
-
+//given simplex, finds the vector 
 Edge findClosest(std::vector<Util::Vector> simplex) {
 
 	Edge closest;
-	for (int i = 0; i < simplex.size(); i++) {
-		int next = i + 1;
-		if (next == simplex.size()) {
+	int i, next;
+	float dist;
+	float shortest;
+	Util::Vector AO, AB, normal;
+
+	for (i = 0; i < simplex.size(); i++) {
+		next = i + 1;
+		if (next == simplex.size())
 			next = 0;
-		}
-		Util::Vector AB = simplex[next] - simplex[i];
-		Util::Vector AO = -1* simplex[i];
-		Util::Vector normal;
-		if (fabs(fabs(AB*AO) - AB.norm() * AO.norm()) < 0.0001) {
+
+		AO = -1 * simplex[i];
+		AB = simplex[next] - simplex[i];
+
+		if (fabs(fabs(AB*AO) - AB.norm() * AO.norm()) >= 0.0001)
+			normal = AO*(AB*AB) - AB*(AB*AO);
+		else {
 			normal.x = -1 * AB.z;
 			normal.y = 0;
 			normal.z = AB.x;
-
-		}
-		else {
-			normal = AO*(AB*AB) - AB*(AB*AO);
 		}
 
 		normal = Util::normalize(normal);
-		float d = fabs(AO*normal);
+		dist = fabs(AO*normal);
 
-		float shortest = FLT_MAX;
+		shortest = FLT_MAX;
 
-		if (shortest > d) {
+		if (shortest > dist) {
 			closest.perp = -1 * normal;
-			closest.dist = d;
 			closest.index = next;
-			shortest = d;
+			closest.dist = dist;
+			shortest = dist;
 		}
 	}
 	return closest;
 }
 
-//calculate penetration depth and vector
 void EPA(float& return_penetration_depth, Util::Vector& return_penetration_vector, const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, std::vector<Util::Vector>Simplex)
 {
 
+	Edge closestEdge;
+	float dist;
+
 	while (true) {
-		Edge closest = findClosest(Simplex);
-		Util::Vector supp = support(_shapeA, _shapeB, closest.perp);
+		//given simplex
+		closestEdge = findClosest(Simplex);
+		Util::Vector supp = support(_shapeA, _shapeB, closestEdge.perp);
 
-		float d = fabs(supp*closest.perp - closest.dist);
+		dist = fabs(supp*closestEdge.perp - closestEdge.dist);
 
-		if (d < 0.0002) {
-			return_penetration_vector = closest.perp;
-			return_penetration_depth = closest.dist;
-			return;
-		}
+		if (dist >= 0.0002)
+			Simplex.insert(Simplex.begin() + closestEdge.index, supp);
 		else {
-			Simplex.insert(Simplex.begin() + closest.index, supp);
+			return_penetration_vector = closestEdge.perp;
+			return_penetration_depth = closestEdge.dist;
+			return;
 		}
 	}
 }
