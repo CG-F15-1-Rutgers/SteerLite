@@ -10,10 +10,10 @@
 SteerLib::GJK_EPA::GJK_EPA()
 {
 
-
+	
 }
 
-
+//calculates the center of input shape
 Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
 	Util::Vector retVect(0, 0, 0);
 
@@ -36,6 +36,7 @@ Util::Vector calculateCenter(const std::vector<Util::Vector>& _shape) {
 	return retVect;
 }
 
+//given a shape and direction vector, determines farthest point on the shape in that direction
 Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector direction)
 {
 	//iterator to keep track of current farthest point
@@ -57,6 +58,7 @@ Util::Vector farthestPoint(const std::vector<Util::Vector>& _shape, Util::Vector
 	return returnVector;
 }
 
+//outputs a point for the minkowski difference
 Util::Vector support(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, Util::Vector direction)
 {
 	//Calculates a Minkowski difference
@@ -227,6 +229,73 @@ bool checkSimplex(std::vector<Util::Vector>& simplex)
 	}
 	
 }
+
+
+typedef struct Edge {
+	float dist;
+	Util::Vector perp;
+	unsigned int index;
+
+};
+
+
+Edge findClosest(std::vector<Util::Vector> simplex) {
+
+	Edge closest;
+	for (int i = 0; i < simplex.size(); i++) {
+		int next = i + 1;
+		if (next == simplex.size()) {
+			next = 0;
+		}
+		Util::Vector AB = simplex[next] - simplex[i];
+		Util::Vector AO = -1* simplex[i];
+		Util::Vector normal;
+		if (fabs(fabs(AB*AO) - AB.norm() * AO.norm()) < 0.0001) {
+			normal.x = -1 * AB.z;
+			normal.y = 0;
+			normal.z = AB.x;
+
+		}
+		else {
+			normal = AO*(AB*AB) - AB*(AB*AO);
+		}
+
+		normal = Util::normalize(normal);
+		float d = fabs(AO*normal);
+
+		float shortest = FLT_MAX;
+
+		if (shortest > d) {
+			closest.perp = -1 * normal;
+			closest.dist = d;
+			closest.index = next;
+			shortest = d;
+		}
+	}
+	return closest;
+}
+
+//calculate penetration depth and vector
+void EPA(float& return_penetration_depth, Util::Vector& return_penetration_vector, const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB, std::vector<Util::Vector>Simplex)
+{
+
+	while (true) {
+		Edge closest = findClosest(Simplex);
+		Util::Vector supp = support(_shapeA, _shapeB, closest.perp);
+
+		float d = fabs(supp*closest.perp - closest.dist);
+
+		if (d < 0.0002) {
+			return_penetration_vector = closest.perp;
+			return_penetration_depth = closest.dist;
+			return;
+		}
+		else {
+			Simplex.insert(Simplex.begin() + closest.index, supp);
+		}
+	}
+}
+
 //Look at the GJK_EPA.h header file for documentation and instructions
 bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector& return_penetration_vector, const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB)
 {
@@ -237,6 +306,7 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 	//gets centers of Minkowski difference viadifference of center of both shapes.
 	Util::Vector direction = calculateCenter(_shapeA) - calculateCenter(_shapeB);
 	if (direction == Util::Vector(0, 0, 0)) {
+		EPA(return_penetration_depth, return_penetration_vector, _shapeA, _shapeB, simplex);
 		return true;
 	}
 
@@ -256,6 +326,7 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 			Util::Vector pt2 = simplex[1];
 			//origin on edge
 			if (onEdge(pt1, pt2)) {
+				EPA(return_penetration_depth, return_penetration_vector, _shapeA, _shapeB, simplex);
 				return true;
 			}
 			else {
@@ -275,6 +346,7 @@ bool SteerLib::GJK_EPA::intersect(float& return_penetration_depth, Util::Vector&
 			//Check the simplex area
 			if (checkSimplex(simplex))
 			{
+				EPA(return_penetration_depth, return_penetration_vector, _shapeA, _shapeB, simplex);
 				return true;
 			}
 		}
