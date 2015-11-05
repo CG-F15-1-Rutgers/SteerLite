@@ -283,14 +283,13 @@ Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 	return vect1 + vect2;
 }
 
-
-
+//takes in goal direction and time step
 Vector SocialForcesAgent::calcGoalForce(Vector _goalDirection, float _dt)
 {
     return AGENT_MASS * ((_goalDirection * PREFERED_SPEED) - velocity()) / _dt;
 }
 
-
+//takes in time step
 Util::Vector SocialForcesAgent::calcRepulsionForce(float dt)
 {
 #ifdef _DEBUG_
@@ -300,7 +299,7 @@ Util::Vector SocialForcesAgent::calcRepulsionForce(float dt)
 	return calcWallRepulsionForce(dt) + (_SocialForcesParams.sf_agent_repulsion_importance * calcAgentRepulsionForce(dt));
 }
 
-
+//take in time step
 Util::Vector SocialForcesAgent::calcAgentRepulsionForce(float dt)
 {
 	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
