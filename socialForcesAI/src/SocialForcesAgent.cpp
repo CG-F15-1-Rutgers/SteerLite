@@ -167,40 +167,40 @@ void SocialForcesAgent::reset(const SteerLib::AgentInitialConditions & initialCo
 	 * And that _waypoints is not empty
 	 */
 	Util::Vector goalDirection;
-	if (!_midTermPath.empty())
+	if ( !_midTermPath.empty() )
 	{
 		this->updateLocalTarget();
-		goalDirection = normalize(this->_currentLocalTarget - position());
+		goalDirection = normalize( this->_currentLocalTarget - position());
 	}
 	else
 	{
-		goalDirection = normalize(_goalQueue.front().targetLocation - position());
+		goalDirection = normalize( _goalQueue.front().targetLocation - position());
 	}
 
 	_prefVelocity =
-		(
 			(
 				(
-					Util::Vector(goalDirection.x, 0.0f, goalDirection.z) *
-					PREFERED_SPEED
+					(
+						Util::Vector(goalDirection.x, 0.0f, goalDirection.z) *
+						PREFERED_SPEED
 					)
 				- velocity()
 				)
-			/
-			_SocialForcesParams.sf_acceleration
+				/
+				_SocialForcesParams.sf_acceleration
 			)
-		*
-		MASS;
+			*
+			MASS;
 
 	// _velocity = _prefVelocity;
 #ifdef _DEBUG_ENTROPY
 	std::cout << "goal direction is: " << goalDirection << " prefvelocity is: " << prefVelocity_ <<
-		" and current velocity is: " << velocity_ << std::endl;
+			" and current velocity is: " << velocity_ << std::endl;
 #endif
 
 	// std::cout << "Parameter spec: " << _SocialForcesParams << std::endl;
 	// gEngine->addAgent(this, rvoModule);
-	assert(_forward.length() != 0.0f);
+	assert(_forward.length()!=0.0f);
 	assert(_goalQueue.size() != 0);
 	assert(_radius != 0.0f);
 }
@@ -208,88 +208,49 @@ void SocialForcesAgent::reset(const SteerLib::AgentInitialConditions & initialCo
 
 void SocialForcesAgent::calcNextStep(float dt)
 {
-	//nothing to do here
+    //nothing to do here
 }
 
 
 std::pair<float, Util::Point> minimum_distance(Util::Point l1, Util::Point l2, Util::Point p)
 {
-	// Return minimum distance between line segment vw and point p
-	float lSq = (l1 - l2).lengthSquared();  // i.e. |l2-l1|^2 -  avoid a sqrt
-	if (lSq == 0.0)
-		return std::make_pair((p - l2).length(), l1);   // l1 == l2 case
-	// Consider the line extending the segment, parameterized as l1 + t (l2 - l1).
-	// We find projection of point p onto the line.
-	// It falls where t = [(p-l1) . (l2-l1)] / |l2-l1|^2
-	const float t = dot(p - l1, l2 - l1) / lSq;
-	if (t < 0.0)
-	{
-		return std::make_pair((p - l1).length(), l1);       // Beyond the 'l1' end of the segment
-	}
-	else if (t > 1.0)
-	{
-		return std::make_pair((p - l2).length(), l2);  // Beyond the 'l2' end of the segment
-	}
-	const Util::Point projection = l1 + t * (l2 - l1);  // Projection falls on the segment
-	return std::make_pair((p - projection).length(), projection);
+  // Return minimum distance between line segment vw and point p
+  float lSq = (l1 - l2).lengthSquared();  // i.e. |l2-l1|^2 -  avoid a sqrt
+  if (lSq == 0.0)
+	  return std::make_pair((p - l2).length(),l1 );   // l1 == l2 case
+  // Consider the line extending the segment, parameterized as l1 + t (l2 - l1).
+  // We find projection of point p onto the line.
+  // It falls where t = [(p-l1) . (l2-l1)] / |l2-l1|^2
+  const float t = dot(p - l1, l2 - l1) / lSq;
+  if (t < 0.0)
+  {
+	  return std::make_pair((p - l1).length(), l1);       // Beyond the 'l1' end of the segment
+  }
+  else if (t > 1.0)
+  {
+	  return std::make_pair((p - l2).length(), l2);  // Beyond the 'l2' end of the segment
+  }
+  const Util::Point projection = l1 + t * (l2 - l1);  // Projection falls on the segment
+  return std::make_pair((p - projection).length(), projection) ;
 }
 
-//takes in time step
+
 Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 {
-	float dist = 0;
-	
-	float wall_a = _SocialForcesParams.sf_wall_a;
-	float wall_b = _SocialForcesParams.sf_wall_b;
-	
-	float agent_a = _SocialForcesParams.sf_agent_a;
-	float agent_b = _SocialForcesParams.sf_agent_b;
-	
-	float proxRadius = _SocialForcesParams.sf_query_radius + _radius;
+    std::cerr<<"<<<calcProximityForce>>> Please Implement my body\n";
 
-	//init vectors
-	Util::Vector vect1 = Util::Vector(0, 0, 0);
-	Util::Vector vect2 = Util::Vector(0, 0, 0);
-
-	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
-
-	gSpatialDatabase->getItemsInRange(
-		setNeighbors, _position.x - proxRadius, _position.x + proxRadius,
-		_position.z - proxRadius, _position.z + proxRadius,
-		dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
-
-	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbor = setNeighbors.begin(); neighbor != setNeighbors.end(); neighbor++) {
-		
-		if ((*neighbor)->isAgent()) {
-			AgentInterface *pAgent = dynamic_cast<AgentInterface *>(*neighbor);
-			dist = (radius() + pAgent->radius()) - (position() - pAgent->position()).length();
-			Util::Vector force = (normalize(position() - pAgent->position())) * (agent_a * exp(dist / agent_b));
-			vect1 += force;
-		}
-
-		else {
-			SteerLib::ObstacleInterface *obstacle = dynamic_cast<SteerLib::ObstacleInterface *>(*neighbor);
-
-			Util::Vector wall_normal = calcWallNormal(obstacle);
-			std::pair<Util::Point, Util::Point> line = calcWallPointsFromNormal(obstacle, wall_normal);
-			std::pair<float, Util::Point> min = minimum_distance(line.first, line.second, position());
-
-			dist = radius() - (position() - min.second).length();
-			Util::Vector force = (normalize(position() - min.second)) * (wall_a * exp(dist / wall_b)) * dt;
-			vect2 += force;
-		}
-	}
-
-	return vect1 + vect2;
+    return Util::Vector(0,0,0);
 }
 
-//takes in goal direction and time step
+
 Vector SocialForcesAgent::calcGoalForce(Vector _goalDirection, float _dt)
 {
-    return AGENT_MASS * ((_goalDirection * PREFERED_SPEED) - velocity()) / _dt;
+    std::cerr<<"<<<calcGoalForce>>> Please Implement my body\n";
+
+    return Util::Vector(0,0,0);
 }
 
-//takes in time step
+
 Util::Vector SocialForcesAgent::calcRepulsionForce(float dt)
 {
 #ifdef _DEBUG_
@@ -299,62 +260,20 @@ Util::Vector SocialForcesAgent::calcRepulsionForce(float dt)
 	return calcWallRepulsionForce(dt) + (_SocialForcesParams.sf_agent_repulsion_importance * calcAgentRepulsionForce(dt));
 }
 
-//take in time step
+
 Util::Vector SocialForcesAgent::calcAgentRepulsionForce(float dt)
 {
-	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
+    std::cerr<<"<<<calcAgentRepulsionForce>>> Please Implement my body\n";
 
-	//init repulsion force vector
-	Util::Vector agentRepulsionForce = Util::Vector(0, 0, 0);
-	
-	gEngine->getSpatialDatabase()->getItemsInRange(setNeighbors, _position.x - (this->_radius + _SocialForcesParams.sf_query_radius), _position.x + (this->_radius + _SocialForcesParams.sf_query_radius), _position.z - (this->_radius + _SocialForcesParams.sf_query_radius), _position.z + (this->_radius + _SocialForcesParams.sf_query_radius), dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
-
-	SteerLib::AgentInterface *pAgent;
-	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbor = setNeighbors.begin(); neighbor != setNeighbors.end(); neighbor++) {
-		
-		//skip loop iteration if neighbor is not agent
-		if ((*neighbor)->isAgent() == false)
-			continue;
-
-		pAgent = dynamic_cast<SteerLib::AgentInterface *>(*neighbor);
-
-		if ((pAgent->computePenetration(this->position(), this->radius()) > 0.000001) && (id() != pAgent->id()))
-			agentRepulsionForce += pAgent->computePenetration(this->position(), this->radius()) * _SocialForcesParams.sf_body_force * normalize(position() - pAgent->position());
-	}
-
-	return agentRepulsionForce;
+    return Util::Vector(0,0,0);
 }
+
 
 Util::Vector SocialForcesAgent::calcWallRepulsionForce(float dt)
 {
-	float proxRadius = _SocialForcesParams.sf_query_radius + this->_radius;
-	Util::Vector wallRepulsionForce = Util::Vector(0, 0, 0);
-	SteerLib::ObstacleInterface *pObstacle;
-	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
-	
-	gSpatialDatabase->getItemsInRange(setNeighbors, _position.x - proxRadius, _position.x + proxRadius, _position.z - proxRadius, _position.z + proxRadius, dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
+    std::cerr<<"<<<calcWallRepulsionForce>>> Please Implement my body\n";
 
-	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbor = setNeighbors.begin(); neighbor != setNeighbors.end(); neighbor++) {
-		
-		if ((*neighbor)->isAgent() == true)
-			continue;
-
-		pObstacle = dynamic_cast<SteerLib::ObstacleInterface*>(*neighbor);
-		float penetration = pObstacle->computePenetration(this->position(), this->radius());
-		
-		//if penetrates farther than threshold
-		if (penetration > 0.000001) {
-			
-			Util::Vector wallNorm = calcWallNormal(pObstacle);
-			std::pair<Util::Point, Util::Point> line = calcWallPointsFromNormal(pObstacle, wallNorm);
-			std::pair<float, Util::Point> min = minimum_distance(line.first, line.second, position());
-			wallRepulsionForce = wallNorm * (min.first + radius()) * _SocialForcesParams.sf_body_force;
-
-			return wallRepulsionForce;
-		}
-	}
-
-	return wallRepulsionForce;
+    return Util::Vector(0,0,0);
 }
 
 
@@ -598,13 +517,10 @@ void SocialForcesAgent::updateAI(float timeStamp, float dt, unsigned int frameNu
 		alpha=0;
 	}
 
-	_velocity = (prefForce)+repulsionForce + proximityForce;
-	// _velocity = velocity() + repulsionForce + proximityForce;
-
 	Util::Vector acceleration = (prefForce + repulsionForce + proximityForce) / AGENT_MASS;
 	_velocity = velocity() + acceleration * dt;
 	_velocity = clamp(velocity(), _SocialForcesParams.sf_max_speed);
-	_velocity.y = 0.0f;
+	_velocity.y=0.0f;
 #ifdef _DEBUG_
 	std::cout << "agent" << id() << " speed is " << velocity().length() << std::endl;
 #endif
@@ -912,8 +828,8 @@ void SocialForcesAgent::draw()
 		DrawLib::drawLine(midpoint, midpoint+normal, gGreen);
 
 		// Draw the closes point as well
-		std::pair<float, Util::Point> min = minimum_distance(line.first, line.second, position());
-		DrawLib::drawStar(min.second, Util::Vector(1,0,0), 0.34f, gGreen);
+		std::pair<float, Util::Point> min_stuff = minimum_distance(line.first, line.second, position());
+		DrawLib::drawStar(min_stuff.second, Util::Vector(1,0,0), 0.34f, gGreen);
 	}
 	*/
 
@@ -921,3 +837,4 @@ void SocialForcesAgent::draw()
 
 #endif
 }
+
