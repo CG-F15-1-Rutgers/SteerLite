@@ -58,19 +58,12 @@ namespace SteerLib
 		return true;
 	}
 
-
-
 	Util::Point AStarPlanner::getPointFromGridIndex(int id)
 	{
 		Util::Point p;
 		gSpatialDatabase->getLocationFromIndex(id, p);
 		return p;
 	}
-
-
-
-
-
 
 	double AStarPlanner::heuristic(Util::Point start, Util::Point finish) {
 		double dist = 0;
@@ -83,11 +76,10 @@ namespace SteerLib
 		}
 		//Use Manhattan
 		else{
-			dist = abs(start.x - finish.x)
-				+ abs(start.y - finish.y)
-				+abs(start.z - finish.z);
+			dist	= abs(start.x - finish.x)
+					+ abs(start.y - finish.y)
+					+ abs(start.z - finish.z);
 		}
-		
 		
 		return dist;
 	}
