@@ -96,7 +96,7 @@ namespace SteerLib
 			*/
 
 			bool computePath(std::vector<Util::Point>& agent_path, Util::Point start, Util::Point goal, SteerLib::GridDatabase2D * _gSpatialDatabase, bool append_to_path = false);
-			double AStarPlanner::heuristic(Util::Point start, Util::Point finish);
+			double AStarPlanner::heuristic(int start_index, int goal_index);
 			bool heur = true;
 	private:
 			SteerLib::GridDatabase2D * gSpatialDatabase;
