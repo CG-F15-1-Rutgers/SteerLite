@@ -69,6 +69,29 @@ namespace SteerLib
 
 
 
+
+
+
+	double AStarPlanner::heuristic(Util::Point start, Util::Point finish) {
+		double dist = 0;
+		
+		//Use Euclidean
+		if(heur){
+			dist = sqrt((start.x - finish.x)*(start.x - finish.x)
+				+ (start.y - finish.y)*(start.y - finish.y)
+				+ (start.z - finish.z)*(start.z - finish.z));
+		}
+		//Use Manhattan
+		else{
+			dist = abs(start.x - finish.x)
+				+ abs(start.y - finish.y)
+				+abs(start.z - finish.z);
+		}
+		
+		
+		return dist;
+	}
+
 	bool AStarPlanner::computePath(std::vector<Util::Point>& agent_path,  Util::Point start, Util::Point goal, SteerLib::GridDatabase2D * _gSpatialDatabase, bool append_to_path)
 	{
 		gSpatialDatabase = _gSpatialDatabase;
