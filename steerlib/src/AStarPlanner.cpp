@@ -81,7 +81,7 @@ namespace SteerLib
 		//Use Manhattan
 		else{
 			dist	= abs(start.x - goal.x)
-					+ abs(start.y - goal.y)
+					+ abs(start.y - goal.y) //again don't need y coord
 					+ abs(start.z - goal.z);
 		}
 		
