@@ -65,20 +65,24 @@ namespace SteerLib
 		return p;
 	}
 
-	double AStarPlanner::heuristic(Util::Point start, Util::Point finish) {
+	double AStarPlanner::heuristic(int start_index, int goal_index) {
 		double dist = 0;
-		
+
+		Util::Point start, goal;
+		start	= getPointFromGridIndex(start_index);
+		goal	= getPointFromGridIndex(goal_index);
+
 		//Use Euclidean
 		if(heur){
-			dist = sqrt((start.x - finish.x)*(start.x - finish.x)
-				+ (start.y - finish.y)*(start.y - finish.y)
-				+ (start.z - finish.z)*(start.z - finish.z));
+			dist	= sqrt((start.x - goal.x)*(start.x - goal.x)
+					+ (start.y - goal.y)*(start.y - goal.y) //not necessary but oh well
+					+ (start.z - goal.z)*(start.z - goal.z));
 		}
 		//Use Manhattan
 		else{
-			dist	= abs(start.x - finish.x)
-					+ abs(start.y - finish.y)
-					+ abs(start.z - finish.z);
+			dist	= abs(start.x - goal.x)
+					+ abs(start.y - goal.y)
+					+ abs(start.z - goal.z);
 		}
 		
 		return dist;
