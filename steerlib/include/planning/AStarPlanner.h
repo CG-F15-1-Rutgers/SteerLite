@@ -97,7 +97,11 @@ namespace SteerLib
 
 			bool computePath(std::vector<Util::Point>& agent_path, Util::Point start, Util::Point goal, SteerLib::GridDatabase2D * _gSpatialDatabase, bool append_to_path = false);
 			double AStarPlanner::heuristic(int start_index, int goal_index);
-			bool heur = true;
+			int AStarPlanner::getCurr(std::set<int> openset, std::map<int, AStarPlannerNode*> nodeMap);
+			bool AStarPlanner::reconstruct_path(std::vector<Util::Point>& agent_path, int currentNode, std::map<int, AStarPlannerNode*> nodeMap);
+			void AStarPlanner::expandNeighbor(int currentNode, int goalIndex, std::set<int>& openset, std::set<int> closedset, std::map<int, AStarPlannerNode*>& nodeMap);
+			bool heur;
+			int expandedNum;
 	private:
 			SteerLib::GridDatabase2D * gSpatialDatabase;
 	};
