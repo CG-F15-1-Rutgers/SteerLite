@@ -23,6 +23,7 @@ namespace SteerLib
         public:
 			GJK_EPA();
 
+
             /*
              *
              *  DO NOT CHANGE THE FUNCTION DEFINITION FOR intersect()
@@ -127,6 +128,10 @@ namespace SteerLib
              *  DO NOT MODIFY polygon1.xml
              */
             static bool intersect(float& return_penetration_depth, Util::Vector& return_penetration_vector, const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB);
+
+			bool GJK(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB);
+
+			GJK_EPA(const std::vector<Util::Vector>& _shapeA, const std::vector<Util::Vector>& _shapeB);
 
         private:
 
