@@ -327,34 +327,46 @@ Util::Vector SocialForcesAgent::calcAgentRepulsionForce(float dt)
 
 Util::Vector SocialForcesAgent::calcWallRepulsionForce(float dt)
 {
-	float proxRadius = _SocialForcesParams.sf_query_radius + this->_radius;
-	Util::Vector wallRepulsionForce = Util::Vector(0, 0, 0);
-	SteerLib::ObstacleInterface *pObstacle;
-	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
+	const float proxRadius = _SocialForcesParams.sf_query_radius + this->_radius;
+	Util::Vector wallrepulsionforce = Util::Vector(0, 0, 0);
+	SteerLib::ObstacleInterface* pObstacle;
+	std::set<SteerLib::SpatialDatabaseItemPtr> neighbors;
+	
+	gSpatialDatabase->getItemsInRange(neighbors, _position.x - proxRadius, _position.x + proxRadius, _position.z - proxRadius, _position.z + proxRadius, dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
 
-	gSpatialDatabase->getItemsInRange(setNeighbors, _position.x - proxRadius, _position.x + proxRadius, _position.z - proxRadius, _position.z + proxRadius, dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
-
-	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbor = setNeighbors.begin(); neighbor != setNeighbors.end(); neighbor++) {
-
-		if ((*neighbor)->isAgent() == true)
+	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbour = neighbors.begin(); neighbour != neighbors.end(); neighbour++) {
+		
+		if ((*neighbour)->isAgent() == true) {
 			continue;
+		}
 
-		pObstacle = dynamic_cast<SteerLib::ObstacleInterface*>(*neighbor);
+		pObstacle = dynamic_cast<SteerLib::ObstacleInterface*>(*neighbour);
 		float penetration = pObstacle->computePenetration(this->position(), this->radius());
+	
 
-		//if penetrates farther than threshold
 		if (penetration > 0.000001) {
-
-			Util::Vector wallNorm = calcWallNormal(pObstacle);
-			std::pair<Util::Point, Util::Point> line = calcWallPointsFromNormal(pObstacle, wallNorm);
+		
+			Util::Vector wall_normal = calcWallNormal(pObstacle);
+			std::pair<Util::Point, Util::Point> line = calcWallPointsFromNormal(pObstacle, wall_normal);
 			std::pair<float, Util::Point> min = minimum_distance(line.first, line.second, position());
-			wallRepulsionForce = wallNorm * (min.first + radius()) * _SocialForcesParams.sf_body_force;
+			//wallRepulsionForce = wallNorm * (min.first + radius()) * _SocialForcesParams.sf_body_force;
 
-			return wallRepulsionForce;
+			Util::Vector dist = (position() - min.second);
+			Util::Vector dir = normalize(dist);
+			Util::Vector perpVec = Util::Vector(-wall_normal.z, 0.0f, wall_normal.x);
+			float distance = dist.length();
+			float realDistance = radius() - distance;
+
+			float repulsionForce = _SocialForcesParams.sf_body_force * penetration;
+			float slidingForce = _SocialForcesParams.sf_sliding_friction_force * penetration *  (dot(velocity(), perpVec));
+			Util::Vector rfVec = repulsionForce * dir;
+			Util::Vector sLVec = slidingForce * perpVec;
+
+			wallrepulsionforce = wallrepulsionforce + (rfVec + sLVec) * dt;
 		}
 	}
 
-	return wallRepulsionForce;
+	return wallrepulsionforce;
 }
 
 
