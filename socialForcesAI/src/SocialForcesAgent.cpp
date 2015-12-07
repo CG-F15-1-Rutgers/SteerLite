@@ -239,7 +239,10 @@ Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 {
 	Util::Vector away = Util::Vector(0, 0, 0);
 	Util::Vector away_obs = Util::Vector(0, 0, 0);
-
+	const float agent_a = _SocialForcesParams.sf_agent_a;
+	const float agent_b = _SocialForcesParams.sf_agent_b;
+	const float wall_a = _SocialForcesParams.sf_wall_a;
+	const float wall_b = _SocialForcesParams.sf_wall_b;
 	const float proximity_radius = _SocialForcesParams.sf_query_radius + _radius;
 	std::set<SteerLib::SpatialDatabaseItemPtr> neighbors;
 	gSpatialDatabase->getItemsInRange(neighbors, _position.x - proximity_radius, _position.x + proximity_radius,
