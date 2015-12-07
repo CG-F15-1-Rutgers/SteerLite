@@ -294,27 +294,46 @@ Util::Vector SocialForcesAgent::calcRepulsionForce(float dt)
 //take in time step
 Util::Vector SocialForcesAgent::calcAgentRepulsionForce(float dt)
 {
-	std::set<SteerLib::SpatialDatabaseItemPtr> setNeighbors;
+	Util::Vector retForce = Util::Vector(0, 0, 0);
 
-	//init repulsion force vector
-	Util::Vector agentRepulsionForce = Util::Vector(0, 0, 0);
+	//temporary agent
+	SteerLib::AgentInterface *temp;
 
-	gEngine->getSpatialDatabase()->getItemsInRange(setNeighbors, _position.x - (this->_radius + _SocialForcesParams.sf_query_radius), _position.x + (this->_radius + _SocialForcesParams.sf_query_radius), _position.z - (this->_radius + _SocialForcesParams.sf_query_radius), _position.z + (this->_radius + _SocialForcesParams.sf_query_radius), dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
+	std::set<SteerLib::SpatialDatabaseItemPtr> _neighbors;
+	gEngine->getSpatialDatabase()->getItemsInRange(_neighbors, _position.x - (this->_radius + _SocialForcesParams.sf_query_radius), _position.x + (this->_radius + _SocialForcesParams.sf_query_radius), _position.z - (this->_radius + _SocialForcesParams.sf_query_radius), _position.z + (this->_radius + _SocialForcesParams.sf_query_radius), dynamic_cast<SteerLib::SpatialDatabaseItemPtr>(this));
 
-	SteerLib::AgentInterface *pAgent;
-	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator neighbor = setNeighbors.begin(); neighbor != setNeighbors.end(); neighbor++) {
-
-		//skip loop iteration if neighbor is not agent
-		if ((*neighbor)->isAgent() == false)
+	//curr = current neighbor being processed
+	for (std::set<SteerLib::SpatialDatabaseItemPtr>::iterator curr = _neighbors.begin(); curr != _neighbors.end(); curr++)
+	{
+		if ((*curr)->isAgent() == true) {
+			temp = dynamic_cast<SteerLib::AgentInterface *>(*curr);
+		} else {
 			continue;
+		}
 
-		pAgent = dynamic_cast<SteerLib::AgentInterface *>(*neighbor);
+		if (temp->computePenetration(this->position(), this->radius()) && id() != temp->id()) {
+			
+			Util::Vector distVector = (position() - temp->position());
+			Util::Vector dirVector = normalize(distVector);
+			
+			//compose with opposite of dist vectors z val, 0 for y, and the x val
+			Util::Vector perpVector = Util::Vector(-distVector.z, 0.0f, distVector.x);
+			
+			float rad_sum = radius() + temp->radius();
+			float dist = distVector.length();
+			
+			//sum of radii minus length of distance vector
+			float diff = rad_sum - dist;
 
-		if ((pAgent->computePenetration(this->position(), this->radius()) > 0.000001) && (id() != pAgent->id()))
-			agentRepulsionForce += pAgent->computePenetration(this->position(), this->radius()) * _SocialForcesParams.sf_body_force * normalize(position() - pAgent->position());
+			float pen_force = _SocialForcesParams.sf_agent_body_force * diff;
+			float s_force = _SocialForcesParams.sf_sliding_friction_force * diff * dot(velocity(), perpVector);
+
+			Util::Vector slidingForceVec = s_force * perpVector;
+			Util::Vector penetrationForceVec = pen_force * dirVector;
+			retForce += (penetrationForceVec + slidingForceVec) * dt;
+		}
 	}
-
-	return agentRepulsionForce;
+	return retForce;
 }
 
 Util::Vector SocialForcesAgent::calcWallRepulsionForce(float dt)
