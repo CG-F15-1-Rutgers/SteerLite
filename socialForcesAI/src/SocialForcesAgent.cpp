@@ -5,6 +5,10 @@
 // See license.txt for complete license.
 //
 
+
+//Tolby Lew, Firas Sattar, Brian Ho
+
+
 #include <cmath>
 #include "SocialForcesAgent.h"
 #include "SocialForcesAIModule.h"
