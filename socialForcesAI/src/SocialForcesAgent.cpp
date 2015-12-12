@@ -261,9 +261,9 @@ Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 				float sumRadius = radius() + tempA->radius();
 				float realDistance = sumRadius - distance;
 
-				float psychologicalForce = agentA * exp((realDistance) / agentB);
-				Util::Vector psychologicalForceVec = dir * psychologicalForce * dt;
-				away = away + psychologicalForceVec;
+				float force = agentA * exp((realDistance) / agentB);
+				Util::Vector force = dir * force * dt;
+				away = away + force;
 			}
 
 		}
@@ -278,9 +278,9 @@ Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 			Util::Vector dir = normalize(dist);
 			float distance = dist.length();
 			float realDistance = radius() - distance;
-			float psychologicalForce = agentA * exp((realDistance) / agentB);
-			Util::Vector psychologicalForceVec = dir * psychologicalForce * dt;
-			away_obs = away_obs + psychologicalForceVec;
+			float force = agentA * exp((realDistance) / agentB);
+			Util::Vector force = dir * force * dt;
+			away_obs = away_obs + force;
 		}
 	}
 
