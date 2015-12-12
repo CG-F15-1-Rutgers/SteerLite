@@ -337,7 +337,9 @@ Util::Vector SocialForcesAgent::calcAgentRepulsionForce(float dt)
 
 			//sum of radii minus length of distance vector
 			float diff = rad_sum - dist;
-
+			/*
+			To imitate pushing/shoving of an actual crowd
+			*/
 			float pen_force = _SocialForcesParams.sf_agent_body_force * diff;
 			float s_force = _SocialForcesParams.sf_sliding_friction_force * diff * dot(velocity(), perpVector);
 
@@ -382,6 +384,10 @@ Util::Vector SocialForcesAgent::calcWallRepulsionForce(float dt)
 			Util::Vector perpVec = Util::Vector(-wall_normal.z, 0.0f, wall_normal.x);
 			float distance = dist.length();
 			float realDistance = radius() - distance;
+
+			/*
+			To imitate pushing/shoving of an actual crowd
+			*/
 
 			float repulsionForce = _SocialForcesParams.sf_body_force * penetration;
 			float slidingForce = _SocialForcesParams.sf_sliding_friction_force * penetration *  (dot(velocity(), perpVec));
