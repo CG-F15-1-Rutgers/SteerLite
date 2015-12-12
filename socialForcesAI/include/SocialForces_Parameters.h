@@ -14,11 +14,11 @@
 
 // #include "testcaseio/Behaviour.h"
 
-#define MAX_SPEED 2.6f
+#define MAX_SPEED 5.6f
 #define PREFERED_SPEED 1.33 // TODO not added to parameters yet.
 
 
-#define ACCELERATION 0.5 // = v/A
+#define ACCELERATION 4.5 // = v/A
 #define PERSONAL_SPACE_THRESHOLD 0.3 // not defined in HiDAC papaer
 #define AGENT_REPULSION_IMPORTANCE 0.1 // in HiDAC
 #define QUERY_RADIUS 3.0f // not defined in paper
