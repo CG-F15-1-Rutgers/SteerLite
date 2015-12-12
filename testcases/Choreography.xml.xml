@@ -1,0 +1,341 @@
+<!--
+  Copyright (c) 2009 Shawn Singh, Mubbasir Kapadia, Petros Faloutsos, Glenn Reinman
+  See license.txt for complete license.
+-->
+
+<SteerBenchTestCase xmlns="http://www.magix.ucla.edu/steerbench"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.magix.ucla.edu/steerbench 
+                                        TestCaseSchema.xsd">
+
+  <header>
+    <version>1.0</version>
+    <name>bottleneck-evacuationtest</name>
+    <worldBounds>
+      <xmin>-100</xmin>
+      <xmax>100</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>-100</zmin>
+      <zmax>100</zmax>
+    </worldBounds>
+  </header>
+  
+  <suggestedCameraView>
+    <position> <x>24</x> <y>160</y> <z>0</z> </position>
+    <lookat> <x>5</x> <y>25</y> <z>0</z> </lookat>
+    <up> <x>0</x> <y>90</y> <z>0</z> </up>
+    <fovy>25</fovy>
+  </suggestedCameraView>
+
+<obstacle>
+    <xmin>-11</xmin>
+    <xmax>20</xmax>
+    <ymin>0</ymin>
+    <ymax>1</ymax>
+    <zmin>2.1</zmin>
+    <zmax>25</zmax>
+  </obstacle>
+
+  <obstacle>
+    <xmin>-11</xmin>
+    <xmax>20</xmax>
+    <ymin>0</ymin>
+    <ymax>1</ymax>
+    <zmin>30</zmin>
+    <zmax>100</zmax>
+  </obstacle>
+
+
+  <obstacle>
+    <xmin>-11</xmin>
+    <xmax>20</xmax>
+    <ymin>0</ymin>
+    <ymax>1</ymax>
+    <zmin>-25</zmin>
+    <zmax>-2.1</zmax>
+  </obstacle>
+
+  <obstacle>
+    <xmin>-11</xmin>
+    <xmax>20</xmax>
+    <ymin>0</ymin>
+    <ymax>1</ymax>
+    <zmin>-100</zmin>
+    <zmax>-30</zmax>
+  </obstacle>
+  
+ <agentRegion>
+
+    <numAgents>50</numAgents>
+    <regionBounds>
+      <xmin>50</xmin>
+      <xmax>70</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>70</zmin>
+      <zmax>90</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>1.0</radius>
+      <speed>5</speed>
+         <color> <r>0</r> <g>1</g> <b>1</b> </color>
+    </initialConditions>
+    <goalSequence>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>70</x>
+          <y>0</y>
+          <z>-100</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+
+  </agentRegion>
+  
+  <agentRegion>
+
+    <numAgents>50</numAgents>
+    <regionBounds>
+      <xmin>-70</xmin>
+      <xmax>-50</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>-90</zmin>
+      <zmax>-70</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>1.0</radius>
+      <speed>5</speed>
+         <color> <r>0</r> <g>1</g> <b>1</b> </color>
+    </initialConditions>
+<goalSequence>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>-70</x>
+          <y>0</y>
+          <z>90</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+  </agentRegion>
+
+
+   <agentRegion>
+
+    <numAgents>25</numAgents>
+    <regionBounds>
+      <xmin>30</xmin>
+      <xmax>50</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>20</zmin>
+      <zmax>40</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>0.75</radius>
+      <speed>5</speed>
+         <color> <r>1</r> <g>0</g> <b>1</b> </color>
+    </initialConditions>
+    <goalSequence>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>25</x>
+          <y>0</y>
+          <z>0</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>-25</x>
+          <y>0</y>
+          <z>0</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    <seekStaticTarget>
+        <targetLocation>
+          <x>-25</x>
+          <y>0</y>
+          <z>100</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+
+  </agentRegion>
+  
+  
+  <agentRegion>
+
+    <numAgents>25</numAgents>
+    <regionBounds>
+      <xmin>30</xmin>
+      <xmax>50</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>-40</zmin>
+      <zmax>-20</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>0.75</radius>
+      <speed>5</speed>
+         <color> <r>1</r> <g>1</g> <b>0</b> </color>
+    </initialConditions>
+    <goalSequence>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>25</x>
+          <y>0</y>
+          <z>0</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>-25</x>
+          <y>0</y>
+          <z>0</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    <seekStaticTarget>
+        <targetLocation>
+          <x>-25</x>
+          <y>0</y>
+          <z>-100</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+
+  </agentRegion>
+
+<agentRegion>
+
+    <numAgents>25</numAgents>
+    <regionBounds>
+      <xmin>-50</xmin>
+      <xmax>-13</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>80</zmin>
+      <zmax>100</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>1.0</radius>
+      <speed>1</speed>
+         <color> <r>1</r> <g>0</g> <b>0</b> </color>
+    </initialConditions>
+    <goalSequence>
+       <seekStaticTarget>
+        <targetLocation>
+          <x>-15</x>
+          <y>0</y>
+          <z>25</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>25</x>
+          <y>0</y>
+          <z>25</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>25</x>
+          <y>0</y>
+          <z>100</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+
+  </agentRegion>
+
+<agentRegion>
+
+    <numAgents>25</numAgents>
+    <regionBounds>
+      <xmin>-13</xmin>
+      <xmax>50</xmax>
+      <ymin>0</ymin>
+      <ymax>0</ymax>
+      <zmin>-100</zmin>
+      <zmax>-80</zmax>
+    </regionBounds>
+    <initialConditions>
+      <direction>
+        <random>true</random>
+      </direction>
+      <radius>1.0</radius>
+      <speed>1</speed>
+         <color> <r>0</r> <g>1</g> <b>0</b> </color>
+    </initialConditions>
+    <goalSequence>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>25</x>
+          <y>0</y>
+          <z>-25</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>-15</x>
+          <y>0</y>
+          <z>-25</z>
+        </targetLocation>
+        <desiredSpeed>10</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+      <seekStaticTarget>
+        <targetLocation>
+          <x>-15</x>
+          <y>0</y>
+          <z>-100</z>
+        </targetLocation>
+        <desiredSpeed>12</desiredSpeed>
+        <timeDuration>1000.0</timeDuration>
+      </seekStaticTarget>
+    </goalSequence>
+
+  </agentRegion>
+
+
+
+</SteerBenchTestCase>

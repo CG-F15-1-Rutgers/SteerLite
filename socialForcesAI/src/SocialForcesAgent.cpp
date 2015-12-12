@@ -241,6 +241,7 @@ std::pair<float, Util::Point> minimum_distance(Util::Point l1, Util::Point l2, U
 
 Util::Vector SocialForcesAgent::calcProximityForce(float dt)
 {
+
 	Util::Vector away = Util::Vector(0, 0, 0);
 	Util::Vector away_obs = Util::Vector(0, 0, 0);
 
